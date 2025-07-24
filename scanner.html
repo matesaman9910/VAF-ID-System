@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Scan QR - VAF ID System</title>
+</head>
+<body>
+  <h1>QR Scanner</h1>
+  <div id="reader" style="width: 300px;"></div>
+  <p id="status">Initializing scanner...</p>
+
+  <!-- QR Scanner Library -->
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+
+  <script>
+    const resultElem = document.getElementById("status");
+
+    function onScanSuccess(decodedText, decodedResult) {
+      resultElem.textContent = "✅ QR Code scanned: " + decodedText;
+      
+      // Only allow numbers
+      if (!/^\d+$/.test(decodedText)) {
+        alert("Invalid code: must be numeric.");
+        return;
+      }
+
+      // Stop scanner
+      scanner.clear().then(() => {
+        // Redirect to profile page
+        window.location.href = `profile.html?id=${decodedText}`;
+      });
+    }
+
+    const scanner = new Html5QrcodeScanner("reader", {
+      fps: 10,
+      qrbox: 250
+    });
+
+    scanner.render(onScanSuccess);
+  </script>
+</body>
+</html>
