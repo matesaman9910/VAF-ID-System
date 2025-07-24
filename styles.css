@@ -1,0 +1,92 @@
+/* Base */
+body {
+  background-color: #121212;
+  color: #E0E0E0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+  padding: 20px;
+  line-height: 1.6;
+}
+
+/* Containers */
+h1, h2, h3 {
+  color: #4CAF50;
+  margin-bottom: 10px;
+}
+
+input, select, button {
+  background-color: #333333;
+  border: 1px solid #444;
+  color: #E0E0E0;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 16px;
+  margin-bottom: 12px;
+  width: 100%;
+  box-sizing: border-box;
+  transition: background-color 0.3s, border-color 0.3s;
+}
+
+input::placeholder, select::placeholder {
+  color: #777;
+}
+
+input:focus, select:focus {
+  outline: none;
+  background-color: #1E1E1E;
+  border-color: #4CAF50;
+}
+
+button {
+  cursor: pointer;
+  font-weight: bold;
+  text-transform: uppercase;
+  border: none;
+  background-color: #333333;
+}
+
+button:hover {
+  background-color: #4CAF50;
+  color: #121212;
+}
+
+/* Profile Cards */
+.profile-card {
+  background-color: #1E1E1E;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 12px;
+  box-shadow: 0 0 6px rgba(0, 255, 0, 0.2);
+}
+
+/* Status badges */
+.status-active {
+  color: #4CAF50;
+  font-weight: bold;
+}
+
+.status-inactive {
+  color: #757575;
+  font-weight: normal;
+  font-style: italic;
+}
+
+.status-wanted {
+  color: #E53935;
+  font-weight: bold;
+}
+
+/* Links and buttons in cards */
+.profile-card button {
+  margin-right: 8px;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  body {
+    padding: 10px;
+  }
+  input, select, button {
+    font-size: 14px;
+  }
+}
