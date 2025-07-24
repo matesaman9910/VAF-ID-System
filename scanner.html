@@ -82,7 +82,7 @@
       scanner.render(onScanSuccess, onScanError);
     }
 
-    function onScanSuccess(decodedText, decodedResult) {
+    function onScanSuccess(decodedText) {
       statusElem.textContent = "✅ QR Code scanned: " + decodedText;
 
       if (!/^\d+$/.test(decodedText)) {
@@ -98,7 +98,7 @@
     }
 
     function onScanError(errorMessage) {
-      // Ignored or you can show feedback if you want
+      // Optional: show scan errors
     }
   </script>
 </body>
