@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>VAF ID System</title>
+</head>
+<body>
+  <h1>VAF ID System</h1>
+  <p id="status">Connecting to Firebase...</p>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+
+  <!-- Config -->
+  <script src="firebase-config.js"></script>
+
+  <!-- Test script -->
+  <script>
+    if (firebase.apps.length > 0) {
+      document.getElementById('status').textContent = "✅ Firebase is connected!";
+    } else {
+      document.getElementById('status').textContent = "❌ Firebase failed to connect.";
+    }
+  </script>
+</body>
+</html>
