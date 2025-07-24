@@ -1,55 +1,97 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <title>VAF ID Profile</title>
+  <meta charset="UTF-8" />
+  <title>VAF ID Profile - Login Required</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    #profileContent { display: none; }
+  </style>
 </head>
 <body>
   <h1>VAF ID Profile</h1>
-  <div id="result">Loading profile...</div>
+
+  <div id="loginDiv">
+    <button id="loginBtn">Login with Google to View Profile</button>
+  </div>
+
+  <div id="userDiv" style="display:none;">
+    <p>Logged in as <span id="userEmail"></span></p>
+    <button id="logoutBtn">Logout</button>
+  </div>
+
+  <div id="profileContent">
+    <div id="profileDetails"></div>
+  </div>
 
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
   <script src="firebase-config.js"></script>
 
   <script>
-    const params = new URLSearchParams(window.location.search);
-    const id = params.get('id');
+    const loginDiv = document.getElementById("loginDiv");
+    const userDiv = document.getElementById("userDiv");
+    const loginBtn = document.getElementById("loginBtn");
+    const logoutBtn = document.getElementById("logoutBtn");
+    const userEmailSpan = document.getElementById("userEmail");
+    const profileContent = document.getElementById("profileContent");
+    const profileDetails = document.getElementById("profileDetails");
 
-    if (!id) {
-      document.getElementById("result").textContent = "❌ No ID provided in URL.";
-    } else {
-      firebase.database().ref("profiles/" + id).once("value")
-        .then(snapshot => {
-          if (!snapshot.exists()) {
-            document.getElementById("result").textContent = "❌ No profile found for ID: " + id;
-            return;
-          }
+    const urlParams = new URLSearchParams(window.location.search);
+    const id = urlParams.get("id");
 
-          const data = snapshot.val();
-          document.getElementById("result").innerHTML = `
-            <p><strong>ID:</strong> ${id}</p>
-            <p><strong>Username:</strong> ${data.username}</p>
-            <p><strong>Real Name:</strong> ${data.realName}</p>
-            <p><strong>Rank:</strong> ${data.rank}</p>
-            <p><strong>Department:</strong> ${data.department}</p>
-            <p><strong>Access Level:</strong> ${data.accessLevel}</p>
-            <p><strong>Join Date:</strong> ${data.joinDate}</p>
-            <p><strong>Status:</strong> <span style="color:${statusColor(data.status)}">${data.status}</span></p>
-            ${data.icon ? `<img src="${data.icon}" alt="Icon" width="100">` : ''}
-          `;
-        })
-        .catch(error => {
-          document.getElementById("result").textContent = "❌ Error: " + error.message;
-        });
-    }
+    firebase.auth().onAuthStateChanged(user => {
+      if (user) {
+        loginDiv.style.display = "none";
+        userDiv.style.display = "block";
+        userEmailSpan.textContent = user.email;
+        profileContent.style.display = "block";
+        loadProfile();
+      } else {
+        loginDiv.style.display = "block";
+        userDiv.style.display = "none";
+        profileContent.style.display = "none";
+      }
+    });
 
-    function statusColor(status) {
-      if (status === "active") return "green";
-      if (status === "inactive") return "gray";
-      if (status === "wanted") return "red";
-      return "black";
+    loginBtn.onclick = () => {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      firebase.auth().signInWithPopup(provider)
+        .catch(err => alert("Login failed: " + err.message));
+    };
+
+    logoutBtn.onclick = () => {
+      firebase.auth().signOut();
+    };
+
+    function loadProfile() {
+      if (!id) {
+        profileDetails.innerHTML = "<p>❌ No ID provided in URL.</p>";
+        return;
+      }
+
+      firebase.database().ref("profiles/" + id).once("value").then(snapshot => {
+        if (!snapshot.exists()) {
+          profileDetails.innerHTML = "<p>❌ Profile not found.</p>";
+          return;
+        }
+        const data = snapshot.val();
+        profileDetails.innerHTML = `
+          <p><strong>ID:</strong> ${id}</p>
+          <p><strong>Username:</strong> ${data.username}</p>
+          <p><strong>Real Name:</strong> ${data.realName}</p>
+          <p><strong>Rank:</strong> ${data.rank}</p>
+          <p><strong>Department:</strong> ${data.department}</p>
+          <p><strong>Access Level:</strong> ${data.accessLevel}</p>
+          <p><strong>Join Date:</strong> ${data.joinDate}</p>
+          <p><strong>Status:</strong> ${data.status}</p>
+          ${data.icon ? `<img src="${data.icon}" alt="Icon" width="100" />` : ""}
+        `;
+      }).catch(err => {
+        profileDetails.innerHTML = "<p>❌ Error loading profile: " + err.message + "</p>";
+      });
     }
   </script>
 </body>
