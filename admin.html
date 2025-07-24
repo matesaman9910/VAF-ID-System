@@ -7,24 +7,49 @@
 <body>
   <h1>Admin Panel</h1>
 
+  <!-- Login UI -->
   <div id="loginDiv">
     <p>Login with Google:</p>
     <button onclick="login()">Login</button>
   </div>
 
+  <!-- Admin UI -->
   <div id="adminDiv" style="display:none;">
     <p>Welcome, admin!</p>
-    <!-- Here will go the profile creation form later -->
+
     <button onclick="logout()">Logout</button>
+
+    <hr>
+    <h3>Create VAF Profile</h3>
+    <form id="createForm" onsubmit="createProfile(event)">
+      <label>ID (numeric): <input type="number" id="idInput" required></label><br>
+      <label>Username: <input type="text" id="usernameInput" required></label><br>
+      <label>Real Name: <input type="text" id="realnameInput" required></label><br>
+      <label>Rank: <input type="text" id="rankInput" required></label><br>
+      <label>Department: <input type="text" id="departmentInput" required></label><br>
+      <label>Access Level: <input type="number" id="accessInput" min="0" max="9" required></label><br>
+      <label>Join Date: <input type="date" id="joindateInput" required></label><br>
+      <label>Status:
+        <select id="statusInput">
+          <option>active</option>
+          <option>inactive</option>
+          <option>wanted</option>
+        </select>
+      </label><br>
+      <label>Icon URL: <input type="url" id="iconInput"></label><br><br>
+      <button type="submit">✅ Create Profile</button>
+    </form>
+    <p id="resultMsg"></p>
   </div>
 
-  <!-- Firebase -->
+  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
   <script src="firebase-config.js"></script>
 
   <script>
+    // Show/hide UI based on login state
     firebase.auth().onAuthStateChanged(user => {
       if (user) {
         document.getElementById('loginDiv').style.display = 'none';
@@ -35,6 +60,7 @@
       }
     });
 
+    // Login with Google
     function login() {
       const provider = new firebase.auth.GoogleAuthProvider();
       firebase.auth().signInWithPopup(provider)
@@ -46,8 +72,35 @@
         });
     }
 
+    // Logout
     function logout() {
       firebase.auth().signOut();
+    }
+
+    // Create profile
+    function createProfile(event) {
+      event.preventDefault();
+
+      const id = document.getElementById("idInput").value;
+      const profile = {
+        username: document.getElementById("usernameInput").value,
+        realName: document.getElementById("realnameInput").value,
+        rank: document.getElementById("rankInput").value,
+        department: document.getElementById("departmentInput").value,
+        accessLevel: parseInt(document.getElementById("accessInput").value),
+        joinDate: document.getElementById("joindateInput").value,
+        status: document.getElementById("statusInput").value,
+        icon: document.getElementById("iconInput").value || ""
+      };
+
+      firebase.database().ref("profiles/" + id).set(profile)
+        .then(() => {
+          document.getElementById("resultMsg").textContent = `✅ Profile ${id} created successfully!`;
+          document.getElementById("createForm").reset();
+        })
+        .catch(error => {
+          document.getElementById("resultMsg").textContent = `❌ Failed: ${error.message}`;
+        });
     }
   </script>
 </body>
