@@ -16,7 +16,7 @@
     }
 
     main {
-      max-width: 700px;
+      max-width: 1000px;
       margin: 0 auto;
       padding: 30px 20px;
     }
@@ -87,6 +87,28 @@
       margin-top: 20px;
       font-size: 15px;
       color: #aaa;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      font-size: 14px;
+    }
+
+    th, td {
+      border: 1px solid #444;
+      padding: 8px;
+      text-align: center;
+    }
+
+    th {
+      background-color: #1e1e1e;
+      color: #4CAF50;
+    }
+
+    td img {
+      border-radius: 4px;
     }
   </style>
 </head>
@@ -161,40 +183,30 @@
           }
 
           const profiles = snapshot.val();
-          const total = Object.keys(profiles).length;
-          const statusCounts = {};
-          let latestProfile = null;
-          let latestTime = 0;
+          const keys = Object.keys(profiles);
+          let html = `<strong>Total Profiles:</strong> ${keys.length}<br><br>`;
+          html += `<table><thead><tr>
+              <th>ID</th><th>Username</th><th>Real Name</th><th>Rank</th>
+              <th>Department</th><th>Access Level</th><th>Join Date</th><th>Status</th><th>Icon</th>
+            </tr></thead><tbody>`;
 
-          for (const id in profiles) {
+          for (const id of keys) {
             const p = profiles[id];
-            const status = p.status || "Unknown";
-            statusCounts[status] = (statusCounts[status] || 0) + 1;
-
-            const joinTime = new Date(p.joinDate).getTime();
-            if (!isNaN(joinTime) && joinTime > latestTime) {
-              latestTime = joinTime;
-              latestProfile = { id, ...p };
-            }
+            const statusColor = getStatusColor(p.status || "");
+            html += `<tr>
+                <td>${id}</td>
+                <td>${p.username || "-"}</td>
+                <td>${p.realName || "-"}</td>
+                <td>${p.rank || "-"}</td>
+                <td>${p.department || "-"}</td>
+                <td>${p.accessLevel || "-"}</td>
+                <td>${p.joinDate || "-"}</td>
+                <td style="color:${statusColor};">${p.status || "-"}</td>
+                <td>${p.icon ? `<img src="${p.icon}" width="40" height="40" />` : "❌"}</td>
+              </tr>`;
           }
 
-          let html = `<strong>Total Profiles:</strong> ${total}<br><br>`;
-          html += `<strong>Status Breakdown:</strong><ul style="text-align: left; display: inline-block;">`;
-          for (const status in statusCounts) {
-            html += `<li>${status}: ${statusCounts[status]}</li>`;
-          }
-          html += `</ul>`;
-
-          if (latestProfile) {
-            html += `<br><strong>Most Recent Profile:</strong><br>
-                     ID: ${latestProfile.id}<br>
-                     Name: ${latestProfile.realName || latestProfile.username || "Unknown"}<br>
-                     Joined: ${latestProfile.joinDate}<br>`;
-          }
-
-          const now = new Date().toLocaleString();
-          html += `<br><em>Last Sync:</em> ${now}`;
-
+          html += "</tbody></table>";
           profileCount.innerHTML = html;
         });
 
@@ -205,15 +217,24 @@
       }
     });
 
-    logoutBtn.onclick = () => {
-      firebase.auth().signOut();
-    };
-
+    logoutBtn.onclick = () => firebase.auth().signOut();
     loginBtn.onclick = () => {
       const provider = new firebase.auth.GoogleAuthProvider();
       firebase.auth().signInWithPopup(provider)
         .catch(err => alert("Login failed: " + err.message));
     };
+
+    function getStatusColor(status) {
+      status = status.toLowerCase();
+      if (status.includes("wanted")) return "#e53935";
+      if (status.includes("active")) return "#4CAF50";
+      if (status.includes("inactive")) return "#999";
+      if (status.includes("blacklisted")) return "#b71c1c";
+      if (status.includes("suspicious")) return "#ff9800";
+      if (status.includes("quarantined")) return "#9c27b0";
+      if (status.includes("restricted")) return "#ffeb3b";
+      return "#ccc";
+    }
 
     setTimeout(() => {
       if (!firebase.apps.length) {
