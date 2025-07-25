@@ -3,61 +3,117 @@
 <head>
   <link rel="stylesheet" href="styles.css" />
   <meta charset="UTF-8" />
-  <title>VAF ID Profile - Login Required</title>
+  <title>VAF Admin Panel</title>
   <style>
     body { font-family: sans-serif; padding: 20px; background-color: #121212; color: #E0E0E0; }
-    #profileContent { display: none; max-width: 400px; margin-top: 20px; }
-    .profile-window {
-      padding: 20px;
-      border-radius: 12px;
+    input, select, button { margin-bottom: 8px; width: 100%; max-width: 400px; }
+    button { cursor: pointer; }
+    .profile-card {
       background-color: #1E1E1E;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 12px;
+      box-shadow: 0 0 6px rgba(0, 255, 0, 0.2);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 600px;
+    }
+    .profile-info {
+      flex-grow: 1;
+      margin-right: 10px;
+      word-break: break-word;
+    }
+    .profile-actions button {
+      margin-left: 5px;
+      width: auto;
+      padding: 6px 12px;
+      font-weight: bold;
+      text-transform: uppercase;
+      background-color: #333;
+      border: none;
       color: #e0e0e0;
-      box-shadow: 0 0 12px 3px var(--status-color, #4caf50);
-      transition: box-shadow 0.5s ease-in-out;
+      border-radius: 6px;
+      transition: background-color 0.3s;
     }
-    /* Status colors */
-    .status-active { --status-color: #4caf50; }          /* Green */
-    .status-inactive { --status-color: #757575; }        /* Gray */
-    .status-wanted { --status-color: #e53935; }          /* Red */
-    .status-suspicious { --status-color: #ff9800; }      /* Orange */
-    .status-quarantined { --status-color: #9c27b0; }     /* Purple */
-    .status-restricted { --status-color: #ffeb3b; color: black; } /* Yellow */
-    .status-blacklisted { --status-color: #b71c1c; }     /* Dark Red */
-
-    /* Alarm pulse animation */
-    @keyframes pulseAlarm {
-      0%, 100% {
-        box-shadow: 0 0 20px 6px var(--status-color);
-        transform: translateX(0);
-      }
-      50% {
-        box-shadow: 0 0 30px 10px var(--status-color);
-        transform: translateX(4px);
-      }
+    .profile-actions button:hover {
+      background-color: #4caf50;
+      color: #121212;
     }
-
-    .profile-window.alarm {
-      animation: pulseAlarm 1.5s infinite ease-in-out;
+    footer {
+      margin-top: 30px;
+      padding-top: 15px;
+      border-top: 1px solid #444;
+      color: #aaa;
+      max-width: 600px;
+    }
+    footer ul {
+      list-style: none;
+      padding-left: 0;
+    }
+    footer ul li {
+      margin-bottom: 6px;
+    }
+    footer a {
+      color: #4caf50;
+      text-decoration: none;
+    }
+    footer a:hover {
+      text-decoration: underline;
     }
   </style>
 </head>
 <body>
-  <h1>VAF ID Profile</h1>
+  <h1>VAF Admin Panel</h1>
 
-  <div id="loginDiv">
-    <button id="loginBtn">Login with Google to View Profile</button>
-  </div>
+  <button onclick="logout()" style="max-width: 400px; margin-bottom: 20px;">Logout</button>
 
-  <div id="userDiv" style="display:none;">
-    <p>Logged in as <span id="userEmail"></span></p>
-    <button id="logoutBtn">Logout</button>
-  </div>
+  <h2 id="formTitle">Create Profile</h2>
+  <form id="profileForm" onsubmit="saveProfile(event)" style="max-width: 400px;">
+    <input type="hidden" id="idInput" />
+    <label>Username:<br><input type="text" id="usernameInput" required></label>
+    <label>Real Name:<br><input type="text" id="realnameInput" required></label>
+    <label>Rank:<br>
+      <select id="rankInput" required></select>
+    </label>
+    <label>Department:<br>
+      <select id="departmentInput" required></select>
+    </label>
+    <label>Access Level:<br>
+      <select id="accessInput" required></select>
+    </label>
+    <label>Join Date:<br><input type="date" id="joindateInput" required></label>
+    <label>Status:<br>
+      <select id="statusInput" required>
+        <option>active</option>
+        <option>inactive</option>
+        <option>wanted</option>
+        <option>suspicious</option>
+        <option>quarantined</option>
+        <option>restricted</option>
+        <option>blacklisted</option>
+      </select>
+    </label>
+    <label>Icon URL:<br><input type="url" id="iconInput" placeholder="Use https://filegarden.com/" ></label>
+    <button type="submit" id="submitBtn">Create Profile</button>
+    <button type="button" onclick="resetForm()" style="margin-left: 10px;">Cancel Edit</button>
+  </form>
 
-  <div id="profileContent">
-    <div id="profileDetails" class="profile-window"></div>
-  </div>
+  <p id="resultMsg"></p>
 
-  <audio id="alarmSound" src="https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg" preload="auto"></audio>
+  <hr>
+
+  <h2>All Profiles</h2>
+  <div id="allProfiles">Loading...</div>
+
+  <footer>
+    <h3>Quick Links</h3>
+    <ul>
+      <li><a href="admin.html">Admin Panel</a></li>
+      <li><a href="scanner.html">Scanner</a></li>
+      <li><a href="profile.html?id=123456">Profile Example</a></li>
+    </ul>
+  </footer>
 
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
@@ -66,98 +122,199 @@
   <script src="firebase-config.js"></script>
 
   <script>
-    const loginDiv = document.getElementById("loginDiv");
-    const userDiv = document.getElementById("userDiv");
-    const loginBtn = document.getElementById("loginBtn");
-    const logoutBtn = document.getElementById("logoutBtn");
-    const userEmailSpan = document.getElementById("userEmail");
-    const profileContent = document.getElementById("profileContent");
-    const profileDetails = document.getElementById("profileDetails");
-    const alarmSound = document.getElementById("alarmSound");
+    const ranks = [
+      "Visitor", "Trainee", "Intern", "Expedition Recruit", "Recruit",
+      "Maintanance Team Member", "Expedition Scout", "Maintanance Specialist",
+      "Expedition Specialist", "Squad Member", "Expedition Operative", "Security Officer",
+      "Internal Security Officer", "Head Security Supervisor", "Internal Security Supervisor",
+      "Controll Room Operator", "Expedition Raid Leader", "Head Internal Security Officer",
+      "Expedition Commander", "Operations Leader", "Internal Security Strategist",
+      "Maintanance Team Leader", "Security Squad Leader", "Expedition Team Leader",
+      "Special Forces Recruit", "Special Forces Specialist", "Special Forces Operator",
+      "Special Forces Team Leader", "Staff Manager", "Commander",
+      "Chief Expeditions Commander", "Chief Special Forces Commander",
+      "Chief Security Commander", "General Commander"
+    ];
+    const departments = [
+      "Maintanance", "Expeditions", "Security", "Internal Operations*",
+      "Recruting Divison*", "Operations*", "Internal Security**",
+      "Special Forces**", "Command***"
+    ];
+    const accessLevels = [
+      "Limited Access Level", "Low Standard Level", "Medium Standard Level",
+      "High Standard Level", "Low Security Level", "Medium Security Level",
+      "High Security Level", "Internal Access Security Level", "Low Command Level",
+      "Medium Command Level", "High Command Level", "Commanding Officer", "The Creator"
+    ];
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const id = urlParams.get("id");
+    // Populate dropdowns
+    function populateSelect(id, options) {
+      const select = document.getElementById(id);
+      select.innerHTML = "";
+      options.forEach(opt => {
+        const o = document.createElement("option");
+        o.value = o.textContent = opt;
+        select.appendChild(o);
+      });
+    }
+
+    populateSelect("rankInput", ranks);
+    populateSelect("departmentInput", departments);
+    populateSelect("accessInput", accessLevels);
+
+    const profileForm = document.getElementById("profileForm");
+    const idInput = document.getElementById("idInput");
+    const usernameInput = document.getElementById("usernameInput");
+    const realnameInput = document.getElementById("realnameInput");
+    const rankInput = document.getElementById("rankInput");
+    const departmentInput = document.getElementById("departmentInput");
+    const accessInput = document.getElementById("accessInput");
+    const joindateInput = document.getElementById("joindateInput");
+    const statusInput = document.getElementById("statusInput");
+    const iconInput = document.getElementById("iconInput");
+    const resultMsg = document.getElementById("resultMsg");
+    const submitBtn = document.getElementById("submitBtn");
+    const formTitle = document.getElementById("formTitle");
+
+    let editMode = false;
 
     firebase.auth().onAuthStateChanged(user => {
       if (user) {
-        loginDiv.style.display = "none";
-        userDiv.style.display = "block";
-        userEmailSpan.textContent = user.email;
-        profileContent.style.display = "block";
-        loadProfile();
+        loadAllProfiles();
       } else {
-        loginDiv.style.display = "block";
-        userDiv.style.display = "none";
-        profileContent.style.display = "none";
-        stopAlarm();
+        // Optionally redirect to login or show message
+        alert("Please login to access the admin panel.");
       }
     });
 
-    loginBtn.onclick = () => {
-      const provider = new firebase.auth.GoogleAuthProvider();
-      firebase.auth().signInWithPopup(provider)
-        .catch(err => alert("Login failed: " + err.message));
-    };
-
-    logoutBtn.onclick = () => {
+    function logout() {
       firebase.auth().signOut();
-      stopAlarm();
-    };
-
-    function stopAlarm() {
-      alarmSound.pause();
-      alarmSound.currentTime = 0;
+      alert("Logged out.");
+      // Optionally redirect to login page
     }
 
-    function loadProfile() {
-      if (!id) {
-        profileDetails.innerHTML = "<p>❌ No ID provided in URL.</p>";
-        profileDetails.className = "profile-window status-inactive";
-        stopAlarm();
-        return;
-      }
+    // Generate random 6-digit ID
+    function generateRandomId() {
+      return Math.floor(100000 + Math.random() * 900000).toString();
+    }
 
+    // Save profile (create or update)
+    function saveProfile(e) {
+      e.preventDefault();
+      let id = idInput.value;
+      if (!editMode) {
+        id = generateRandomId();
+      }
+      const profile = {
+        username: usernameInput.value.trim(),
+        realName: realnameInput.value.trim(),
+        rank: rankInput.value,
+        department: departmentInput.value,
+        accessLevel: accessInput.value,
+        joinDate: joindateInput.value,
+        status: statusInput.value,
+        icon: iconInput.value.trim()
+      };
+      firebase.database().ref("profiles/" + id).set(profile).then(() => {
+        resultMsg.textContent = editMode ? `✅ Profile ${id} updated.` : `✅ Profile ${id} created.`;
+        resetForm();
+        loadAllProfiles();
+      }).catch(err => {
+        resultMsg.textContent = `❌ Error: ${err.message}`;
+      });
+    }
+
+    // Load all profiles and display list
+    function loadAllProfiles() {
+      const container = document.getElementById("allProfiles");
+      container.innerHTML = "Loading...";
+      firebase.database().ref("profiles").once("value").then(snapshot => {
+        container.innerHTML = "";
+        const data = snapshot.val();
+        if (!data) {
+          container.textContent = "No profiles.";
+          return;
+        }
+        for (const id in data) {
+          const prof = data[id];
+          const div = document.createElement("div");
+          div.className = "profile-card";
+          div.innerHTML = `
+            <div class="profile-info"><strong>${id}</strong> - ${prof.username}</div>
+            <div class="profile-actions">
+              <button onclick="editOne('${id}')">✏️ Edit</button>
+              <button onclick="deleteOne('${id}')">🗑️ Delete</button>
+            </div>
+          `;
+          container.appendChild(div);
+        }
+
+        // Footer quick links
+        const footer = document.createElement("footer");
+        footer.innerHTML = `
+          <h3>Quick Links</h3>
+          <ul>
+            <li><a href="admin.html">Admin Panel</a></li>
+            <li><a href="scanner.html">Scanner</a></li>
+            <li><a href="profile.html?id=123456">Profile Example</a></li>
+          </ul>
+        `;
+        container.appendChild(footer);
+      });
+    }
+
+    // Load profile data into form for editing
+    function editOne(id) {
       firebase.database().ref("profiles/" + id).once("value").then(snapshot => {
         if (!snapshot.exists()) {
-          profileDetails.innerHTML = "<p>❌ Profile not found.</p>";
-          profileDetails.className = "profile-window status-inactive";
-          stopAlarm();
+          alert("Profile not found.");
           return;
         }
         const data = snapshot.val();
-        const statusKey = data.status ? data.status.toLowerCase().replace(/\s/g, '-') : 'inactive';
-        const statusClass = `status-${statusKey}`;
-
-        // Define which statuses trigger alarm sound & animation
-        const alarmStatuses = ['wanted', 'blacklisted'];
-        const isAlarm = alarmStatuses.includes(statusKey);
-
-        profileDetails.className = "profile-window " + statusClass + (isAlarm ? " alarm" : "");
-
-        profileDetails.innerHTML = `
-          <p><strong>ID:</strong> ${id}</p>
-          <p><strong>Username:</strong> ${data.username}</p>
-          <p><strong>Real Name:</strong> ${data.realName}</p>
-          <p><strong>Rank:</strong> ${data.rank}</p>
-          <p><strong>Department:</strong> ${data.department}</p>
-          <p><strong>Access Level:</strong> ${data.accessLevel}</p>
-          <p><strong>Join Date:</strong> ${data.joinDate}</p>
-          <p><strong>Status:</strong> <span>${data.status}</span></p>
-          ${data.icon ? `<img src="${data.icon}" alt="Icon" width="100" style="margin-top:10px; border-radius:8px;" />` : ""}
-        `;
-
-        if (isAlarm) {
-          alarmSound.play().catch(() => {
-            // Autoplay may be blocked, user interaction needed
-          });
-        } else {
-          stopAlarm();
-        }
-      }).catch(err => {
-        profileDetails.innerHTML = "<p>❌ Error loading profile: " + err.message + "</p>";
-        profileDetails.className = "profile-window status-inactive";
-        stopAlarm();
+        idInput.value = id;
+        usernameInput.value = data.username || "";
+        realnameInput.value = data.realName || "";
+        rankInput.value = data.rank || ranks[0];
+        departmentInput.value = data.department || departments[0];
+        accessInput.value = data.accessLevel || accessLevels[0];
+        joindateInput.value = data.joinDate || "";
+        statusInput.value = data.status || "active";
+        iconInput.value = data.icon || "";
+        editMode = true;
+        formTitle.textContent = `Edit Profile - ID: ${id}`;
+        submitBtn.textContent = "Update Profile";
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       });
+    }
+
+    // Reset form to create mode
+    function resetForm() {
+      editMode = false;
+      idInput.value = "";
+      usernameInput.value = "";
+      realnameInput.value = "";
+      rankInput.value = ranks[0];
+      departmentInput.value = departments[0];
+      accessInput.value = accessLevels[0];
+      joindateInput.value = "";
+      statusInput.value = "active";
+      iconInput.value = "";
+      formTitle.textContent = "Create Profile";
+      submitBtn.textContent = "Create Profile";
+      resultMsg.textContent = "";
+    }
+
+    // Delete profile
+    function deleteOne(id) {
+      if (confirm(`Are you sure you want to delete profile ID ${id}?`)) {
+        firebase.database().ref("profiles/" + id).remove().then(() => {
+          alert(`Profile ${id} deleted.`);
+          loadAllProfiles();
+          if (editMode && idInput.value === id) resetForm();
+        }).catch(err => {
+          alert(`Error deleting profile: ${err.message}`);
+        });
+      }
     }
   </script>
 </body>
