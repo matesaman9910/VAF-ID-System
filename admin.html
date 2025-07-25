@@ -5,9 +5,29 @@
   <meta charset="UTF-8" />
   <title>VAF Admin Panel</title>
   <style>
-    body { font-family: sans-serif; padding: 20px; background-color: #121212; color: #E0E0E0; }
-    input, select, button { margin-bottom: 8px; width: 100%; max-width: 400px; }
-    button { cursor: pointer; }
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+      background-color: #121212;
+      color: #E0E0E0;
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+    main {
+      width: 100%;
+      max-width: 700px;
+    }
+    input, select, button {
+      margin-bottom: 8px;
+      width: 100%;
+      max-width: 400px;
+      display: block;
+    }
+    button {
+      cursor: pointer;
+    }
     .profile-card {
       background-color: #1E1E1E;
       border-radius: 8px;
@@ -18,6 +38,8 @@
       justify-content: space-between;
       align-items: center;
       max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
     }
     .profile-info {
       flex-grow: 1;
@@ -65,52 +87,62 @@
     footer a:hover {
       text-decoration: underline;
     }
+    h1, h2 {
+      text-align: center;
+    }
+    #resultMsg {
+      max-width: 400px;
+      margin: 0 auto 20px auto;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
-  <h1>VAF Admin Panel</h1>
+  <main>
+    <h1>VAF Admin Panel</h1>
 
-  <button onclick="logout()" style="max-width: 400px; margin-bottom: 20px;">Logout</button>
+    <button onclick="logout()" style="max-width: 400px; margin: 0 auto 20px auto; display: block;">Logout</button>
 
-  <h2 id="formTitle">Create Profile</h2>
-  <form id="profileForm" onsubmit="saveProfile(event)" style="max-width: 400px;">
-    <input type="hidden" id="idInput" />
-    <label>Username:<br><input type="text" id="usernameInput" required></label>
-    <label>Real Name:<br><input type="text" id="realnameInput" required></label>
-    <label>Rank:<br>
-      <select id="rankInput" required></select>
-    </label>
-    <label>Department:<br>
-      <select id="departmentInput" required></select>
-    </label>
-    <label>Access Level:<br>
-      <select id="accessInput" required></select>
-    </label>
-    <label>Join Date:<br><input type="date" id="joindateInput" required></label>
-    <label>Status:<br>
-      <select id="statusInput" required>
-        <option>active</option>
-        <option>inactive</option>
-        <option>wanted</option>
-        <option>suspicious</option>
-        <option>quarantined</option>
-        <option>restricted</option>
-        <option>blacklisted</option>
-      </select>
-    </label>
-    <label>Icon URL:<br><input type="url" id="iconInput" placeholder="Use https://filegarden.com/" ></label>
-    <button type="submit" id="submitBtn">Create Profile</button>
-    <button type="button" onclick="resetForm()" style="margin-left: 10px;">Cancel Edit</button>
-  </form>
+    <h2 id="formTitle">Create Profile</h2>
+    <form id="profileForm" onsubmit="saveProfile(event)" style="max-width: 400px; margin: 0 auto;">
+      <input type="hidden" id="idInput" />
+      <label>Username:<br><input type="text" id="usernameInput" required></label>
+      <label>Real Name:<br><input type="text" id="realnameInput" required></label>
+      <label>Rank:<br>
+        <select id="rankInput" required></select>
+      </label>
+      <label>Department:<br>
+        <select id="departmentInput" required></select>
+      </label>
+      <label>Access Level:<br>
+        <select id="accessInput" required></select>
+      </label>
+      <label>Join Date:<br><input type="date" id="joindateInput" required></label>
+      <label>Status:<br>
+        <select id="statusInput" required>
+          <option>active</option>
+          <option>inactive</option>
+          <option>wanted</option>
+          <option>suspicious</option>
+          <option>quarantined</option>
+          <option>restricted</option>
+          <option>blacklisted</option>
+        </select>
+      </label>
+      <label>Icon URL:<br><input type="url" id="iconInput" placeholder="Use https://filegarden.com/" ></label>
+      <button type="submit" id="submitBtn">Create Profile</button>
+      <button type="button" onclick="resetForm()" style="margin-left: 10px;">Cancel Edit</button>
+    </form>
 
-  <p id="resultMsg"></p>
+    <p id="resultMsg"></p>
 
-  <hr>
+    <hr>
 
-  <h2>All Profiles</h2>
-  <div id="allProfiles">Loading...</div>
+    <h2>All Profiles</h2>
+    <div id="allProfiles">Loading...</div>
 
-  <!-- Footer will be dynamically added here -->
+    <!-- Footer will be dynamically added here -->
+  </main>
 
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
@@ -119,6 +151,7 @@
   <script src="firebase-config.js"></script>
 
   <script>
+    // Same JavaScript as before, no changes
     const ranks = [
       "Visitor", "Trainee", "Intern", "Expedition Recruit", "Recruit",
       "Maintanance Team Member", "Expedition Scout", "Maintanance Specialist",
@@ -144,7 +177,6 @@
       "Medium Command Level", "High Command Level", "Commanding Officer", "The Creator"
     ];
 
-    // Populate dropdowns
     function populateSelect(id, options) {
       const select = document.getElementById(id);
       select.innerHTML = "";
@@ -188,12 +220,10 @@
       alert("Logged out.");
     }
 
-    // Generate random 6-digit ID
     function generateRandomId() {
       return Math.floor(100000 + Math.random() * 900000).toString();
     }
 
-    // Save profile (create or update)
     function saveProfile(e) {
       e.preventDefault();
       let id = idInput.value;
@@ -219,7 +249,6 @@
       });
     }
 
-    // Load all profiles and display list
     function loadAllProfiles() {
       const container = document.getElementById("allProfiles");
       container.innerHTML = "Loading...";
@@ -244,7 +273,6 @@
           container.appendChild(div);
         }
 
-        // Footer quick links (only once, with proper centering)
         const footer = document.createElement("footer");
         footer.style.marginTop = "30px";
         footer.style.paddingTop = "15px";
@@ -268,7 +296,6 @@
       });
     }
 
-    // Load profile data into form for editing
     function editOne(id) {
       firebase.database().ref("profiles/" + id).once("value").then(snapshot => {
         if (!snapshot.exists()) {
@@ -292,7 +319,6 @@
       });
     }
 
-    // Reset form to create mode
     function resetForm() {
       editMode = false;
       idInput.value = "";
@@ -309,7 +335,6 @@
       resultMsg.textContent = "";
     }
 
-    // Delete profile
     function deleteOne(id) {
       if (confirm(`Are you sure you want to delete profile ID ${id}?`)) {
         firebase.database().ref("profiles/" + id).remove().then(() => {
