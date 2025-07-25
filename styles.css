@@ -6,55 +6,57 @@ body {
   margin: 0;
   padding: 20px;
   line-height: 1.6;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  min-height: 100vh;
-}
-
-main, .content-wrapper {
-  width: 100%;
-  max-width: 700px;
-  text-align: center;
 }
 
 /* Headings */
 h1, h2, h3 {
   color: #4CAF50;
   margin-bottom: 10px;
-  text-align: center;
+}
+
+h1 {
+  font-size: 2em;
+}
+
+h2 {
+  font-size: 1.4em;
 }
 
 /* Inputs, selects, buttons */
 input, select, button {
-  background-color: #333333;
+  background-color: #2A2A2A;
   border: 1px solid #444;
   color: #E0E0E0;
-  padding: 8px 12px;
+  padding: 10px 14px;
   border-radius: 6px;
   font-size: 16px;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
   width: 100%;
+  max-width: 400px;
   box-sizing: border-box;
   transition: background-color 0.3s, border-color 0.3s;
 }
 
-input::placeholder, select::placeholder {
-  color: #777;
+input::placeholder,
+select::placeholder {
+  color: #888;
 }
 
-input:focus, select:focus {
+input:focus,
+select:focus {
   outline: none;
-  background-color: #1E1E1E;
+  background-color: #1C1C1C;
   border-color: #4CAF50;
 }
 
+/* Buttons */
 button {
   cursor: pointer;
   font-weight: bold;
   text-transform: uppercase;
   border: none;
   background-color: #333333;
+  transition: background-color 0.3s, color 0.3s;
 }
 
 button:hover {
@@ -67,14 +69,11 @@ button:hover {
   background-color: #1E1E1E;
   border-radius: 8px;
   padding: 15px;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
   box-shadow: 0 0 6px rgba(0, 255, 0, 0.2);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  max-width: 600px;
-  margin-left: auto;
-  margin-right: auto;
 }
 
 .profile-info {
@@ -84,24 +83,21 @@ button:hover {
 }
 
 .profile-actions button {
-  margin-left: 5px;
+  margin-left: 6px;
   width: auto;
   padding: 6px 12px;
   font-weight: bold;
-  text-transform: uppercase;
-  background-color: #333;
-  border: none;
-  color: #e0e0e0;
+  background-color: #2E2E2E;
   border-radius: 6px;
   transition: background-color 0.3s;
 }
 
 .profile-actions button:hover {
-  background-color: #4caf50;
+  background-color: #4CAF50;
   color: #121212;
 }
 
-/* Status badges */
+/* Status Styles */
 .status-active {
   color: #4CAF50;
   font-weight: bold;
@@ -109,7 +105,6 @@ button:hover {
 
 .status-inactive {
   color: #757575;
-  font-weight: normal;
   font-style: italic;
 }
 
@@ -118,40 +113,43 @@ button:hover {
   font-weight: bold;
 }
 
-/* Firebase Status Box */
-#status {
-  margin-top: 20px;
-  text-align: center;
+.status-suspicious {
+  color: #FF9800;
+}
+
+.status-quarantined {
+  color: #9C27B0;
+}
+
+.status-restricted {
+  color: #FFEB3B;
+  background-color: #333;
+}
+
+.status-blacklisted {
+  color: #B71C1C;
   font-weight: bold;
-  font-size: 1.2em;
+}
+
+/* Firebase connection box */
+#status {
+  margin-top: 10px;
+  display: inline-block;
+  font-weight: bold;
   color: #4CAF50;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
 }
 
-#status::before {
-  content: "✅";
-  font-size: 2em;
-  margin-bottom: 4px;
-}
-
-/* Footer Links */
+/* Footer */
 footer {
   margin-top: 30px;
   padding-top: 15px;
   border-top: 1px solid #444;
-  color: #4caf50;
-  text-align: center;
-  max-width: 600px;
-  margin-left: auto;
-  margin-right: auto;
+  color: #4CAF50;
 }
 
 footer ul {
   list-style: none;
   padding-left: 0;
-  margin-bottom: 0;
 }
 
 footer ul li {
@@ -159,7 +157,7 @@ footer ul li {
 }
 
 footer a {
-  color: #4caf50;
+  color: #4CAF50;
   text-decoration: none;
 }
 
@@ -167,12 +165,29 @@ footer a:hover {
   text-decoration: underline;
 }
 
-/* Responsive */
+/* Responsive tweaks */
 @media (max-width: 600px) {
   body {
     padding: 10px;
   }
-  input, select, button {
+
+  input,
+  select,
+  button {
     font-size: 14px;
+    max-width: 100%;
+  }
+
+  .profile-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .profile-actions {
+    margin-top: 10px;
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
   }
 }
