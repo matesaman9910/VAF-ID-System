@@ -1,72 +1,119 @@
 <!DOCTYPE html>
 <html>
 <head>
-<link rel="stylesheet" href="styles.css" />
-  <meta charset="UTF-8">
-  <title>Admin Panel - VAF ID System</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <link rel="stylesheet" href="styles.css" />
+  <meta charset="UTF-8" />
+  <title>VAF Admin Panel</title>
   <style>
-    body { font-family: sans-serif; padding: 20px; }
-    input, select { margin-bottom: 8px; display: block; }
-    .profile-card { border: 1px solid #aaa; padding: 10px; margin-bottom: 10px; }
-    small { color: #777; }
+    body { font-family: sans-serif; padding: 20px; background-color: #121212; color: #E0E0E0; }
+    input, select, button { margin-bottom: 8px; width: 100%; max-width: 400px; }
+    button { cursor: pointer; }
+    .profile-card {
+      background-color: #1E1E1E;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 12px;
+      box-shadow: 0 0 6px rgba(0, 255, 0, 0.2);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 600px;
+    }
+    .profile-info {
+      flex-grow: 1;
+      margin-right: 10px;
+      word-break: break-word;
+    }
+    .profile-actions button {
+      margin-left: 5px;
+      width: auto;
+      padding: 6px 12px;
+      font-weight: bold;
+      text-transform: uppercase;
+      background-color: #333;
+      border: none;
+      color: #e0e0e0;
+      border-radius: 6px;
+      transition: background-color 0.3s;
+    }
+    .profile-actions button:hover {
+      background-color: #4caf50;
+      color: #121212;
+    }
+    footer {
+      margin-top: 30px;
+      padding-top: 15px;
+      border-top: 1px solid #444;
+      color: #aaa;
+      max-width: 600px;
+    }
+    footer ul {
+      list-style: none;
+      padding-left: 0;
+    }
+    footer ul li {
+      margin-bottom: 6px;
+    }
+    footer a {
+      color: #4caf50;
+      text-decoration: none;
+    }
+    footer a:hover {
+      text-decoration: underline;
+    }
   </style>
 </head>
 <body>
-  <h1>Admin Panel</h1>
+  <h1>VAF Admin Panel</h1>
 
-  <div id="loginDiv">
-    <button onclick="login()">Login with Google</button>
-  </div>
+  <button onclick="logout()" style="max-width: 400px; margin-bottom: 20px;">Logout</button>
 
-  <div id="adminDiv" style="display:none;">
-    <button onclick="logout()">Logout</button>
+  <h2 id="formTitle">Create Profile</h2>
+  <form id="profileForm" onsubmit="saveProfile(event)" style="max-width: 400px;">
+    <input type="hidden" id="idInput" />
+    <label>Username:<br><input type="text" id="usernameInput" required></label>
+    <label>Real Name:<br><input type="text" id="realnameInput" required></label>
+    <label>Rank:<br>
+      <select id="rankInput" required></select>
+    </label>
+    <label>Department:<br>
+      <select id="departmentInput" required></select>
+    </label>
+    <label>Access Level:<br>
+      <select id="accessInput" required></select>
+    </label>
+    <label>Join Date:<br><input type="date" id="joindateInput" required></label>
+    <label>Status:<br>
+      <select id="statusInput" required>
+        <option>active</option>
+        <option>inactive</option>
+        <option>wanted</option>
+        <option>suspicious</option>
+        <option>quarantined</option>
+        <option>restricted</option>
+        <option>blacklisted</option>
+      </select>
+    </label>
+    <label>Icon URL:<br><input type="url" id="iconInput" placeholder="Use https://filegarden.com/" ></label>
+    <button type="submit" id="submitBtn">Create Profile</button>
+    <button type="button" onclick="resetForm()" style="margin-left: 10px;">Cancel Edit</button>
+  </form>
 
-    <hr>
-    <h2>Create Profile</h2>
-    <form id="profileForm" onsubmit="saveProfile(event)">
-      <label>Username: <input type="text" id="usernameInput" required></label>
-      <label>Real Name: <input type="text" id="realnameInput" required></label>
-      <label>Rank:
-        <select id="rankInput" required></select>
-      </label>
-      <label>Department:
-        <select id="departmentInput" required></select>
-      </label>
-      <label>Access Level:
-        <select id="accessInput" required></select>
-      </label>
-      <label>Join Date: <input type="date" id="joindateInput" required></label>
-      <label>Status:
-        <select id="statusInput">
-          <option>active</option>
-          <option>inactive</option>
-          <option>wanted</option>
-        </select>
-      </label>
-      <label>Icon URL: <input type="url" id="iconInput"></label>
-      <small>Use <a href="https://filegarden.com" target="_blank">https://filegarden.com</a></small><br>
-      <button type="submit">💾 Create Profile</button>
-    </form>
-    <p id="resultMsg"></p>
+  <p id="resultMsg"></p>
 
-    <hr>
-    <h2>QR Code Generator</h2>
-    <input type="number" id="qrIdInput" placeholder="Enter ID to generate QR">
-    <button onclick="generateQRCode()">📷 Generate QR</button>
-    <div id="qrcode"></div>
-    <button id="downloadBtn" onclick="downloadQR()" style="display:none;">⬇️ Download QR</button>
+  <hr>
 
-    <hr>
-    <h2>View Profile by ID</h2>
-    <input type="number" id="viewIdInput" placeholder="Enter ID to view">
-    <button onclick="loadProfile()">🔍 Load Profile</button>
-    <div id="viewProfileResult"></div>
+  <h2>All Profiles</h2>
+  <div id="allProfiles">Loading...</div>
 
-    <hr>
-    <h2>All Profiles</h2>
-    <div id="allProfiles">Loading...</div>
-  </div>
+  <footer>
+    <h3>Quick Links</h3>
+    <ul>
+      <li><a href="admin.html">Admin Panel</a></li>
+      <li><a href="scanner.html">Scanner</a></li>
+      <li><a href="profile.html?id=123456">Profile Example</a></li>
+    </ul>
+  </footer>
 
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
@@ -103,6 +150,7 @@
     // Populate dropdowns
     function populateSelect(id, options) {
       const select = document.getElementById(id);
+      select.innerHTML = "";
       options.forEach(opt => {
         const o = document.createElement("option");
         o.value = o.textContent = opt;
@@ -114,119 +162,159 @@
     populateSelect("departmentInput", departments);
     populateSelect("accessInput", accessLevels);
 
+    const profileForm = document.getElementById("profileForm");
+    const idInput = document.getElementById("idInput");
+    const usernameInput = document.getElementById("usernameInput");
+    const realnameInput = document.getElementById("realnameInput");
+    const rankInput = document.getElementById("rankInput");
+    const departmentInput = document.getElementById("departmentInput");
+    const accessInput = document.getElementById("accessInput");
+    const joindateInput = document.getElementById("joindateInput");
+    const statusInput = document.getElementById("statusInput");
+    const iconInput = document.getElementById("iconInput");
+    const resultMsg = document.getElementById("resultMsg");
+    const submitBtn = document.getElementById("submitBtn");
+    const formTitle = document.getElementById("formTitle");
+
+    let editMode = false;
+
     firebase.auth().onAuthStateChanged(user => {
       if (user) {
-        document.getElementById('loginDiv').style.display = 'none';
-        document.getElementById('adminDiv').style.display = 'block';
         loadAllProfiles();
       } else {
-        document.getElementById('loginDiv').style.display = 'block';
-        document.getElementById('adminDiv').style.display = 'none';
+        // Optionally redirect to login or show message
+        alert("Please login to access the admin panel.");
       }
     });
 
-    function login() {
-      const provider = new firebase.auth.GoogleAuthProvider();
-      firebase.auth().signInWithPopup(provider).catch(err => alert("Login failed: " + err.message));
-    }
-
     function logout() {
       firebase.auth().signOut();
+      alert("Logged out.");
+      // Optionally redirect to login page
     }
 
+    // Generate random 6-digit ID
     function generateRandomId() {
-      return Math.floor(100000 + Math.random() * 900000); // 6-digit numeric
+      return Math.floor(100000 + Math.random() * 900000).toString();
     }
 
-    function saveProfile(event) {
-      event.preventDefault();
-      const id = generateRandomId();
+    // Save profile (create or update)
+    function saveProfile(e) {
+      e.preventDefault();
+      let id = idInput.value;
+      if (!editMode) {
+        id = generateRandomId();
+      }
       const profile = {
-        username: document.getElementById("usernameInput").value,
-        realName: document.getElementById("realnameInput").value,
-        rank: document.getElementById("rankInput").value,
-        department: document.getElementById("departmentInput").value,
-        accessLevel: document.getElementById("accessInput").value,
-        joinDate: document.getElementById("joindateInput").value,
-        status: document.getElementById("statusInput").value,
-        icon: document.getElementById("iconInput").value || ""
+        username: usernameInput.value.trim(),
+        realName: realnameInput.value.trim(),
+        rank: rankInput.value,
+        department: departmentInput.value,
+        accessLevel: accessInput.value,
+        joinDate: joindateInput.value,
+        status: statusInput.value,
+        icon: iconInput.value.trim()
       };
-
       firebase.database().ref("profiles/" + id).set(profile).then(() => {
-        document.getElementById("resultMsg").innerHTML = `✅ Created profile with ID: <strong>${id}</strong>`;
-        document.getElementById("profileForm").reset();
+        resultMsg.textContent = editMode ? `✅ Profile ${id} updated.` : `✅ Profile ${id} created.`;
+        resetForm();
         loadAllProfiles();
+      }).catch(err => {
+        resultMsg.textContent = `❌ Error: ${err.message}`;
       });
     }
 
-    function generateQRCode() {
-      const id = document.getElementById("qrIdInput").value;
-      if (!id) return alert("Enter ID first.");
-      const qrDiv = document.getElementById("qrcode");
-      qrDiv.innerHTML = "";
-      new QRCode(qrDiv, { text: id, width: 150, height: 150 });
-      document.getElementById("downloadBtn").style.display = "inline";
-    }
-
-    function downloadQR() {
-      const canvas = document.querySelector("#qrcode canvas");
-      if (!canvas) return alert("No QR code to download.");
-      const link = document.createElement("a");
-      link.download = "vaf-qr.png";
-      link.href = canvas.toDataURL("image/png");
-      link.click();
-    }
-
-    function loadProfile() {
-      const id = document.getElementById("viewIdInput").value;
-      if (!id) return;
-      firebase.database().ref("profiles/" + id).once("value").then(snapshot => {
-        const data = snapshot.val();
-        if (!data) {
-          document.getElementById("viewProfileResult").innerHTML = "❌ Not found.";
-        } else {
-          document.getElementById("viewProfileResult").innerHTML = `
-            <strong>ID:</strong> ${id}<br>
-            <strong>Username:</strong> ${data.username}<br>
-            <strong>Real Name:</strong> ${data.realName}<br>
-            <strong>Status:</strong> ${data.status}<br>
-            ${data.icon ? `<img src="${data.icon}" width="80">` : ""}
-          `;
-        }
-      });
-    }
-
+    // Load all profiles and display list
     function loadAllProfiles() {
+      const container = document.getElementById("allProfiles");
+      container.innerHTML = "Loading...";
       firebase.database().ref("profiles").once("value").then(snapshot => {
-        const container = document.getElementById("allProfiles");
         container.innerHTML = "";
         const data = snapshot.val();
-        if (!data) return container.textContent = "No profiles.";
+        if (!data) {
+          container.textContent = "No profiles.";
+          return;
+        }
         for (const id in data) {
           const prof = data[id];
           const div = document.createElement("div");
           div.className = "profile-card";
           div.innerHTML = `
-            <strong>${id}</strong> - ${prof.username}<br>
-            <button onclick="viewOne('${id}')">👁️ View</button>
-            <button onclick="deleteOne('${id}')">🗑️ Delete</button>
+            <div class="profile-info"><strong>${id}</strong> - ${prof.username}</div>
+            <div class="profile-actions">
+              <button onclick="editOne('${id}')">✏️ Edit</button>
+              <button onclick="deleteOne('${id}')">🗑️ Delete</button>
+            </div>
           `;
           container.appendChild(div);
         }
+
+        // Footer quick links
+        const footer = document.createElement("footer");
+        footer.innerHTML = `
+          <h3>Quick Links</h3>
+          <ul>
+            <li><a href="admin.html">Admin Panel</a></li>
+            <li><a href="scanner.html">Scanner</a></li>
+            <li><a href="profile.html?id=123456">Profile Example</a></li>
+          </ul>
+        `;
+        container.appendChild(footer);
       });
     }
 
-    function viewOne(id) {
-      document.getElementById("viewIdInput").value = id;
-      loadProfile();
+    // Load profile data into form for editing
+    function editOne(id) {
+      firebase.database().ref("profiles/" + id).once("value").then(snapshot => {
+        if (!snapshot.exists()) {
+          alert("Profile not found.");
+          return;
+        }
+        const data = snapshot.val();
+        idInput.value = id;
+        usernameInput.value = data.username || "";
+        realnameInput.value = data.realName || "";
+        rankInput.value = data.rank || ranks[0];
+        departmentInput.value = data.department || departments[0];
+        accessInput.value = data.accessLevel || accessLevels[0];
+        joindateInput.value = data.joinDate || "";
+        statusInput.value = data.status || "active";
+        iconInput.value = data.icon || "";
+        editMode = true;
+        formTitle.textContent = `Edit Profile - ID: ${id}`;
+        submitBtn.textContent = "Update Profile";
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
     }
 
+    // Reset form to create mode
+    function resetForm() {
+      editMode = false;
+      idInput.value = "";
+      usernameInput.value = "";
+      realnameInput.value = "";
+      rankInput.value = ranks[0];
+      departmentInput.value = departments[0];
+      accessInput.value = accessLevels[0];
+      joindateInput.value = "";
+      statusInput.value = "active";
+      iconInput.value = "";
+      formTitle.textContent = "Create Profile";
+      submitBtn.textContent = "Create Profile";
+      resultMsg.textContent = "";
+    }
+
+    // Delete profile
     function deleteOne(id) {
-      if (!confirm("Are you sure you want to delete ID " + id + "?")) return;
-      firebase.database().ref("profiles/" + id).remove().then(() => {
-        alert("Deleted " + id);
-        loadAllProfiles();
-      });
+      if (confirm(`Are you sure you want to delete profile ID ${id}?`)) {
+        firebase.database().ref("profiles/" + id).remove().then(() => {
+          alert(`Profile ${id} deleted.`);
+          loadAllProfiles();
+          if (editMode && idInput.value === id) resetForm();
+        }).catch(err => {
+          alert(`Error deleting profile: ${err.message}`);
+        });
+      }
     }
   </script>
 </body>
