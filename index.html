@@ -56,7 +56,7 @@
       color: #E0E0E0;
     }
 
-    #logoutBtn {
+    #logoutBtn, #loginBtn {
       background-color: #333;
       color: white;
       font-weight: bold;
@@ -64,6 +64,7 @@
       border-radius: 8px;
       border: none;
       cursor: pointer;
+      margin-top: 10px;
     }
 
     .welcome-box {
@@ -81,6 +82,12 @@
     .welcome-box p {
       line-height: 1.6;
     }
+
+    #profileCount {
+      margin-top: 20px;
+      font-size: 15px;
+      color: #aaa;
+    }
   </style>
 </head>
 <body>
@@ -97,6 +104,7 @@
       </nav>
 
       <div class="user-info">Logged in as <span id="userEmail"></span></div>
+      <div id="profileCount"></div>
       <button id="logoutBtn">LOGOUT</button>
     </div>
 
@@ -110,12 +118,14 @@
         <li>✔️ QR codes link directly to profile by numeric ID</li>
       </ul>
       <p style="margin-top: 20px;">Please log in to manage or view secure data.</p>
+      <button id="loginBtn">Login with Google</button>
     </div>
   </main>
 
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
   <script src="firebase-config.js"></script>
 
   <script>
@@ -124,6 +134,8 @@
     const guestSection = document.getElementById("guestSection");
     const userEmailSpan = document.getElementById("userEmail");
     const logoutBtn = document.getElementById("logoutBtn");
+    const loginBtn = document.getElementById("loginBtn");
+    const profileCount = document.getElementById("profileCount");
 
     function showFirebaseConnected() {
       firebaseStatus.textContent = "✅ Firebase is connected!";
@@ -141,6 +153,51 @@
         userEmailSpan.textContent = user.email;
         authSection.style.display = "block";
         guestSection.style.display = "none";
+
+        firebase.database().ref("profiles").once("value").then(snapshot => {
+          if (!snapshot.exists()) {
+            profileCount.innerHTML = "No profiles found.";
+            return;
+          }
+
+          const profiles = snapshot.val();
+          const total = Object.keys(profiles).length;
+          const statusCounts = {};
+          let latestProfile = null;
+          let latestTime = 0;
+
+          for (const id in profiles) {
+            const p = profiles[id];
+            const status = p.status || "Unknown";
+            statusCounts[status] = (statusCounts[status] || 0) + 1;
+
+            const joinTime = new Date(p.joinDate).getTime();
+            if (!isNaN(joinTime) && joinTime > latestTime) {
+              latestTime = joinTime;
+              latestProfile = { id, ...p };
+            }
+          }
+
+          let html = `<strong>Total Profiles:</strong> ${total}<br><br>`;
+          html += `<strong>Status Breakdown:</strong><ul style="text-align: left; display: inline-block;">`;
+          for (const status in statusCounts) {
+            html += `<li>${status}: ${statusCounts[status]}</li>`;
+          }
+          html += `</ul>`;
+
+          if (latestProfile) {
+            html += `<br><strong>Most Recent Profile:</strong><br>
+                     ID: ${latestProfile.id}<br>
+                     Name: ${latestProfile.realName || latestProfile.username || "Unknown"}<br>
+                     Joined: ${latestProfile.joinDate}<br>`;
+          }
+
+          const now = new Date().toLocaleString();
+          html += `<br><em>Last Sync:</em> ${now}`;
+
+          profileCount.innerHTML = html;
+        });
+
       } else {
         showFirebaseConnected();
         authSection.style.display = "none";
@@ -152,7 +209,12 @@
       firebase.auth().signOut();
     };
 
-    // Fallback in case Firebase not loaded
+    loginBtn.onclick = () => {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      firebase.auth().signInWithPopup(provider)
+        .catch(err => alert("Login failed: " + err.message));
+    };
+
     setTimeout(() => {
       if (!firebase.apps.length) {
         showFirebaseDisconnected();
