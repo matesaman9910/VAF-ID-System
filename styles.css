@@ -8,23 +8,21 @@ body {
   line-height: 1.6;
   display: flex;
   justify-content: center; /* center horizontally */
-  min-height: 100vh;
 }
 
-/* Container for content */
+/* Add a main container for content with max width */
 .main-container {
   width: 100%;
   max-width: 700px;
 }
 
-/* Center headings on all pages */
+/* Center all main headings */
 h1, h2, h3 {
   color: #4CAF50;
   margin-bottom: 10px;
   text-align: center;
 }
 
-/* Inputs, selects, buttons */
 input, select, button {
   background-color: #333333;
   border: 1px solid #444;
@@ -36,8 +34,8 @@ input, select, button {
   width: 100%;
   box-sizing: border-box;
   transition: background-color 0.3s, border-color 0.3s;
-  display: block;
-  max-width: 400px;
+  display: block; /* Make sure inputs and buttons are block for spacing */
+  max-width: 400px; /* constrain max width */
   margin-left: auto;
   margin-right: auto;
 }
@@ -68,7 +66,7 @@ button:hover {
   color: #121212;
 }
 
-/* Profile Cards (Admin page & others) */
+/* Profile Cards */
 .profile-card {
   background-color: #1E1E1E;
   border-radius: 8px;
@@ -83,17 +81,6 @@ button:hover {
   align-items: center;
 }
 
-.profile-info {
-  flex-grow: 1;
-  margin-right: 10px;
-  word-break: break-word;
-}
-
-.profile-actions button {
-  margin-left: 8px;
-}
-
-/* Status badges (Profile page) */
 .status-active {
   color: #4CAF50;
   font-weight: bold;
@@ -110,55 +97,8 @@ button:hover {
   font-weight: bold;
 }
 
-.status-suspicious {
-  color: #ff9800;
-  font-weight: bold;
-}
-
-.status-quarantined {
-  color: #9c27b0;
-  font-weight: bold;
-}
-
-.status-restricted {
-  color: #ffeb3b;
-  font-weight: bold;
-  color: black;
-}
-
-.status-blacklisted {
-  color: #b71c1c;
-  font-weight: bold;
-}
-
-/* Profile window with alarm pulse animation */
-.profile-window {
-  padding: 20px;
-  border-radius: 12px;
-  background-color: #1E1E1E;
-  color: #e0e0e0;
-  box-shadow: 0 0 12px 3px var(--status-color, #4caf50);
-  transition: box-shadow 0.5s ease-in-out;
-  max-width: 400px;
-  margin-left: auto;
-  margin-right: auto;
-  margin-top: 20px;
-  text-align: center;
-}
-
-@keyframes pulseAlarm {
-  0%, 100% {
-    box-shadow: 0 0 20px 6px var(--status-color);
-    transform: translateX(0);
-  }
-  50% {
-    box-shadow: 0 0 30px 10px var(--status-color);
-    transform: translateX(4px);
-  }
-}
-
-.profile-window.alarm {
-  animation: pulseAlarm 1.5s infinite ease-in-out;
+.profile-card button {
+  margin-left: 8px;
 }
 
 /* Footer */
@@ -190,22 +130,6 @@ footer a {
 
 footer a:hover {
   text-decoration: underline;
-}
-
-/* Result message (Admin page) */
-#resultMsg {
-  max-width: 400px;
-  margin: 0 auto 20px auto;
-  text-align: center;
-}
-
-/* Scanner page */
-#scannerContainer {
-  margin-top: 20px;
-  max-width: 400px;
-  margin-left: auto;
-  margin-right: auto;
-  text-align: center;
 }
 
 /* Responsive */
