@@ -5,8 +5,40 @@
   <meta charset="UTF-8" />
   <title>VAF ID Profile - Login Required</title>
   <style>
-    body { font-family: sans-serif; padding: 20px; }
-    #profileContent { display: none; }
+    body { font-family: sans-serif; padding: 20px; background-color: #121212; color: #E0E0E0; }
+    #profileContent { display: none; max-width: 400px; margin-top: 20px; }
+    .profile-window {
+      padding: 20px;
+      border-radius: 12px;
+      background-color: #1E1E1E;
+      color: #e0e0e0;
+      box-shadow: 0 0 12px 3px var(--status-color, #4caf50);
+      transition: box-shadow 0.5s ease-in-out;
+    }
+    /* Status colors */
+    .status-active { --status-color: #4caf50; }          /* Green */
+    .status-inactive { --status-color: #757575; }        /* Gray */
+    .status-wanted { --status-color: #e53935; }          /* Red */
+    .status-suspicious { --status-color: #ff9800; }      /* Orange */
+    .status-quarantined { --status-color: #9c27b0; }     /* Purple */
+    .status-restricted { --status-color: #ffeb3b; color: black; } /* Yellow */
+    .status-blacklisted { --status-color: #b71c1c; }     /* Dark Red */
+
+    /* Alarm pulse animation */
+    @keyframes pulseAlarm {
+      0%, 100% {
+        box-shadow: 0 0 20px 6px var(--status-color);
+        transform: translateX(0);
+      }
+      50% {
+        box-shadow: 0 0 30px 10px var(--status-color);
+        transform: translateX(4px);
+      }
+    }
+
+    .profile-window.alarm {
+      animation: pulseAlarm 1.5s infinite ease-in-out;
+    }
   </style>
 </head>
 <body>
@@ -22,8 +54,10 @@
   </div>
 
   <div id="profileContent">
-    <div id="profileDetails"></div>
+    <div id="profileDetails" class="profile-window"></div>
   </div>
+
+  <audio id="alarmSound" src="https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg" preload="auto"></audio>
 
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
@@ -39,6 +73,7 @@
     const userEmailSpan = document.getElementById("userEmail");
     const profileContent = document.getElementById("profileContent");
     const profileDetails = document.getElementById("profileDetails");
+    const alarmSound = document.getElementById("alarmSound");
 
     const urlParams = new URLSearchParams(window.location.search);
     const id = urlParams.get("id");
@@ -54,6 +89,7 @@
         loginDiv.style.display = "block";
         userDiv.style.display = "none";
         profileContent.style.display = "none";
+        stopAlarm();
       }
     });
 
@@ -65,20 +101,39 @@
 
     logoutBtn.onclick = () => {
       firebase.auth().signOut();
+      stopAlarm();
     };
+
+    function stopAlarm() {
+      alarmSound.pause();
+      alarmSound.currentTime = 0;
+    }
 
     function loadProfile() {
       if (!id) {
         profileDetails.innerHTML = "<p>❌ No ID provided in URL.</p>";
+        profileDetails.className = "profile-window status-inactive";
+        stopAlarm();
         return;
       }
 
       firebase.database().ref("profiles/" + id).once("value").then(snapshot => {
         if (!snapshot.exists()) {
           profileDetails.innerHTML = "<p>❌ Profile not found.</p>";
+          profileDetails.className = "profile-window status-inactive";
+          stopAlarm();
           return;
         }
         const data = snapshot.val();
+        const statusKey = data.status ? data.status.toLowerCase().replace(/\s/g, '-') : 'inactive';
+        const statusClass = `status-${statusKey}`;
+
+        // Define which statuses trigger alarm sound & animation
+        const alarmStatuses = ['wanted', 'blacklisted'];
+        const isAlarm = alarmStatuses.includes(statusKey);
+
+        profileDetails.className = "profile-window " + statusClass + (isAlarm ? " alarm" : "");
+
         profileDetails.innerHTML = `
           <p><strong>ID:</strong> ${id}</p>
           <p><strong>Username:</strong> ${data.username}</p>
@@ -87,11 +142,21 @@
           <p><strong>Department:</strong> ${data.department}</p>
           <p><strong>Access Level:</strong> ${data.accessLevel}</p>
           <p><strong>Join Date:</strong> ${data.joinDate}</p>
-          <p><strong>Status:</strong> ${data.status}</p>
-          ${data.icon ? `<img src="${data.icon}" alt="Icon" width="100" />` : ""}
+          <p><strong>Status:</strong> <span>${data.status}</span></p>
+          ${data.icon ? `<img src="${data.icon}" alt="Icon" width="100" style="margin-top:10px; border-radius:8px;" />` : ""}
         `;
+
+        if (isAlarm) {
+          alarmSound.play().catch(() => {
+            // Autoplay may be blocked, user interaction needed
+          });
+        } else {
+          stopAlarm();
+        }
       }).catch(err => {
         profileDetails.innerHTML = "<p>❌ Error loading profile: " + err.message + "</p>";
+        profileDetails.className = "profile-window status-inactive";
+        stopAlarm();
       });
     }
   </script>
