@@ -44,12 +44,16 @@
       margin-top: 30px;
       padding-top: 15px;
       border-top: 1px solid #444;
-      color: #aaa;
+      color: #4caf50;
+      text-align: center;
       max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
     }
     footer ul {
       list-style: none;
       padding-left: 0;
+      margin-bottom: 0;
     }
     footer ul li {
       margin-bottom: 6px;
@@ -106,14 +110,7 @@
   <h2>All Profiles</h2>
   <div id="allProfiles">Loading...</div>
 
-  <footer>
-    <h3>Quick Links</h3>
-    <ul>
-      <li><a href="admin.html">Admin Panel</a></li>
-      <li><a href="scanner.html">Scanner</a></li>
-      <li><a href="profile.html?id=123456">Profile Example</a></li>
-    </ul>
-  </footer>
+  <!-- Footer will be dynamically added here -->
 
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
@@ -182,7 +179,6 @@
       if (user) {
         loadAllProfiles();
       } else {
-        // Optionally redirect to login or show message
         alert("Please login to access the admin panel.");
       }
     });
@@ -190,7 +186,6 @@
     function logout() {
       firebase.auth().signOut();
       alert("Logged out.");
-      // Optionally redirect to login page
     }
 
     // Generate random 6-digit ID
@@ -249,14 +244,24 @@
           container.appendChild(div);
         }
 
-        // Footer quick links
+        // Footer quick links (only once, with proper centering)
         const footer = document.createElement("footer");
+        footer.style.marginTop = "30px";
+        footer.style.paddingTop = "15px";
+        footer.style.borderTop = "1px solid #444";
+        footer.style.color = "#4caf50";
+        footer.style.textAlign = "center";
+        footer.style.maxWidth = "600px";
+        footer.style.marginLeft = "auto";
+        footer.style.marginRight = "auto";
+
         footer.innerHTML = `
-          <h3>Quick Links</h3>
-          <ul>
+          <h3 style="margin-bottom: 8px;">Quick Links</h3>
+          <ul style="list-style:none; padding-left:0; margin-bottom:0;">
             <li><a href="admin.html">Admin Panel</a></li>
             <li><a href="scanner.html">Scanner</a></li>
             <li><a href="profile.html?id=123456">Profile Example</a></li>
+            <li><a href="index.html">Home</a></li>
           </ul>
         `;
         container.appendChild(footer);
