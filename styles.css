@@ -6,12 +6,21 @@ body {
   margin: 0;
   padding: 20px;
   line-height: 1.6;
+  display: flex;
+  justify-content: center; /* center horizontally */
 }
 
-/* Containers */
+/* Add a main container for content with max width */
+.main-container {
+  width: 100%;
+  max-width: 700px;
+}
+
+/* Center all main headings */
 h1, h2, h3 {
   color: #4CAF50;
   margin-bottom: 10px;
+  text-align: center;
 }
 
 input, select, button {
@@ -25,6 +34,10 @@ input, select, button {
   width: 100%;
   box-sizing: border-box;
   transition: background-color 0.3s, border-color 0.3s;
+  display: block; /* Make sure inputs and buttons are block for spacing */
+  max-width: 400px; /* constrain max width */
+  margin-left: auto;
+  margin-right: auto;
 }
 
 input::placeholder, select::placeholder {
@@ -43,6 +56,9 @@ button {
   text-transform: uppercase;
   border: none;
   background-color: #333333;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 button:hover {
@@ -57,9 +73,14 @@ button:hover {
   padding: 15px;
   margin-bottom: 12px;
   box-shadow: 0 0 6px rgba(0, 255, 0, 0.2);
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-/* Status badges */
 .status-active {
   color: #4CAF50;
   font-weight: bold;
@@ -76,9 +97,39 @@ button:hover {
   font-weight: bold;
 }
 
-/* Links and buttons in cards */
 .profile-card button {
-  margin-right: 8px;
+  margin-left: 8px;
+}
+
+/* Footer */
+footer {
+  margin-top: 30px;
+  padding-top: 15px;
+  border-top: 1px solid #444;
+  color: #4caf50;
+  text-align: center;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+footer ul {
+  list-style: none;
+  padding-left: 0;
+  margin-bottom: 0;
+}
+
+footer ul li {
+  margin-bottom: 6px;
+}
+
+footer a {
+  color: #4caf50;
+  text-decoration: none;
+}
+
+footer a:hover {
+  text-decoration: underline;
 }
 
 /* Responsive */
